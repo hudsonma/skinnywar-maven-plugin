@@ -1,15 +1,43 @@
 Skinny WARs with Skinny Configuration (and LTW Ready)
 =====================================================
 
-This maven plugin generates skinny WARs intended to facilitate the EAR pattern discussed in [AspectJ LTW in WebLogic 12](https://github.com/asegner/spring-ltw-weblogic).
-Unlike the skinny war functionality built into maven-ear-plugin, this plugin requires very little configuration.
+This maven (maven>3.3) plugin generates skinny WARs with skinny configuration. It will generate an ear with skinny wars using a standard layout or the load time
+weaver friendly 'communal war' layout discussed in [AspectJ LTW in WebLogic 12](https://github.com/asegner/spring-ltw-weblogic). Unlike the skinny war functionality
+built into maven-ear-plugin, this plugin requires very little configuration.
 
 After installing this plugin to the local maven repository, the calling project pom need only add the following section to its build plugins:
+
+
+For a communal skinny WAR layout:
+```xml
+    <plugin>
+        <groupId>net.segner.maven.plugins</groupId>
+        <artifactId>skinnywar-maven-plugin</artifactId>
+        <configuration>
+            <communalWar>sharedwar.war</communalWar>
+        </configuration>
+        <extensions>true</extensions>
+    </plugin>
+
+```
+
+For a standard skinny WAR layout
 
 ```xml
     <plugin>
         <groupId>net.segner.maven.plugins</groupId>
-        <artifactId>communalwar-maven-plugin</artifactId>
+        <artifactId>skinnywar-maven-plugin</artifactId>
+        <extensions>true</extensions>
+    </plugin>
+
+```
+
+Without setting extension to true, the plugin may still be used with the slightly more verbose:
+
+```xml
+    <plugin>
+        <groupId>net.segner.maven.plugins</groupId>
+        <artifactId>skinnywar-maven-plugin</artifactId>
         <configuration>
             <communalWar>sharedwar.war</communalWar>
         </configuration>
@@ -48,22 +76,12 @@ the standard maven command shown below. This will install the plugin into your l
 `$ mvn clean install`
 
 
-## Current assumptions
---------------------------------------------------
-* The calling project pom is declaring all WebModules in maven-ear-plugin with unpack set to true
-```xml
-<webModule>
-    ...
-    <unpack>true</unpack>
-</webModule>
-```
-
-
 ## Plugin Usage
 --------------------------------------------------
 
 * `communalWar`
   * Name of the war module to treat as the communal war
+  * Facilitates layout discussed in [AspectJ LTW in WebLogic 12](https://github.com/asegner/spring-ltw-weblogic)
 * `warningBreaksBuild`
   * `true` | `false` (default: `true`)
   * Force a warning to fail a build
@@ -71,14 +89,19 @@ the standard maven command shown below. This will install the plugin into your l
   * `true` | `false` (default: `true`)
   * Add AspectJ related libraries to the ear libraries list below
 * `earLibraries`
-  * List of libraries that should be relocated to the EAR
+  * List of libraries that must be relocated to the EAR, if found (rarely needed)
 ```xml
 <earLibraries>
-    <library><prefix>spring-webmvc</prefix></library>
+    <libraryPrefixFilter>spring-webmvc spring-web-</libraryPrefixFilter>
 </earLibraries>
 ```
 * `pinnedLibraries`
   * List of libraries that should not be relocated. List should be specified in the same manner as ear libraries.
+
+
+## Demo Project
+--------------------------------------------------
+A publicly available demo project illustrating this plugins use may be found here: [Plugin Demo Project](https://github.com/asegner/spring-ltw-weblogic)
 
 
 ## License
