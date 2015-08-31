@@ -6,7 +6,6 @@ import net.java.truevfs.access.TFile;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 
 public interface ApplicationModule {
@@ -18,7 +17,7 @@ public interface ApplicationModule {
 
     boolean isUnpacked();
 
-    void setUnpacked( TFile unpackedFile );
+    void setUnpacked(TFile unpackedFile);
 
     TFile getModuleRoot();
 
@@ -33,6 +32,4 @@ public interface ApplicationModule {
     void removeLib(String libraryName) throws IOException;
 
     List<TFile> getLibraryFiles();
-
-    Map<String, ApplicationModule> getModules() throws IOException;
 }

@@ -11,10 +11,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EarModule extends GenericApplicationModule {
     private static final Logger logger = LoggerFactory.getLogger(EarModule.class);
@@ -41,13 +38,12 @@ public class EarModule extends GenericApplicationModule {
         return DEFAULT_LIB_RELATIVE_LOCATION;
     }
 
-    @Override
     @Nonnull
     public Map<String, ApplicationModule> getModules() throws IOException {
         if (moduleNameToModuleMap == null) {
             createModuleMap();
         }
-        return moduleNameToModuleMap;
+        return Collections.unmodifiableMap(moduleNameToModuleMap);
     }
 
     protected boolean isEarMetadata(TFile file) {

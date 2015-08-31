@@ -8,6 +8,7 @@ import net.segner.maven.plugins.communal.enhancer.SkinnyWarEarEnhancer;
 import net.segner.maven.plugins.communal.enhancer.StandardlSkinnyWarEarEnhancer;
 import net.segner.maven.plugins.communal.module.ApplicationModuleProvider;
 import net.segner.maven.plugins.communal.module.EarModule;
+import net.segner.maven.plugins.communal.enhancer.WeblogicLtwMetadataEnhancer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.model.Build;
@@ -38,13 +39,16 @@ public class EarLayoutEnhancerMojo extends AbstractMojo {
      * Usually the dependencies are shared via the EAR. When this is not empty, the shared dependencies will be moved to the communal WAR.
      */
     @Parameter(alias = "communalWar")
-    protected String communalBundleName;
+    protected String communalModuleName;
 
     @Parameter(defaultValue = "true")
     protected Boolean warningBreaksBuild;
 
     @Parameter(defaultValue = "true")
     protected Boolean forceAspectJLibToEar;
+
+    @Parameter(defaultValue = "true")
+    private Boolean generateWeblogicLtwMetadata;
 
     @Parameter(alias = "earLibraries")
     protected List<LibraryFilter> earLibraryList = new ArrayList<>();
@@ -58,6 +62,7 @@ public class EarLayoutEnhancerMojo extends AbstractMojo {
     @Inject
     private ApplicationModuleProvider applicationModuleProvider;
 
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
@@ -66,7 +71,7 @@ public class EarLayoutEnhancerMojo extends AbstractMojo {
             Validate.isTrue(earModule.canRead() && earModule.canWrite(), "Missing read / write permissions to ear target folder");
 
             // enhance the ear with the skinny war pattern
-            ModuleEnhancer<EarModule> earModuleEnhancer = fetchSkinnyWarEarEnhancer(communalBundleName);
+            ModuleEnhancer<EarModule> earModuleEnhancer = fetchEarEnhancer();
             earModuleEnhancer.setTargetModule(earModule);
             earModuleEnhancer.enhance();
 
@@ -88,20 +93,29 @@ public class EarLayoutEnhancerMojo extends AbstractMojo {
     }
 
     @Nonnull
-    private ModuleEnhancer<EarModule> fetchSkinnyWarEarEnhancer(String communalBundleName) {
+    private ModuleEnhancer<EarModule> fetchEarEnhancer() {
+
         // merge ear library list with aspectj list for the complete list
         List<LibraryFilter> fullEarLibraryList = new ArrayList<>(earLibraryList);
         if (forceAspectJLibToEar) {
             ASPECTJLIBRARIES.forEach(earLib -> fullEarLibraryList.add(new LibraryPrefixFilter(earLib)));
         }
 
-        // create the enhancer and return it
-        SkinnyWarEarEnhancer earModuleEnhancer = StringUtils.isNotBlank(communalBundleName) ?
-                new CommunalSkinnyWarEarEnhancer(communalBundleName) :
+        // create skinny enhancer
+        SkinnyWarEarEnhancer skinnyEnhancer = StringUtils.isNotBlank(communalModuleName) ?
+                new CommunalSkinnyWarEarEnhancer(communalModuleName) :
                 new StandardlSkinnyWarEarEnhancer();
-        earModuleEnhancer.setPinnedLibraries(pinnedLibraryList);
-        earModuleEnhancer.setEarLibraries(fullEarLibraryList);
-        return earModuleEnhancer;
+        skinnyEnhancer.setPinnedLibraries(pinnedLibraryList);
+        skinnyEnhancer.setEarLibraries(fullEarLibraryList);
+
+        // create weblogic ltw metadata generation
+        if (generateWeblogicLtwMetadata) {
+            WeblogicLtwMetadataEnhancer ltwEnhancer = new WeblogicLtwMetadataEnhancer();
+            ltwEnhancer.setSkinnyEnhancer(skinnyEnhancer);
+            return ltwEnhancer;
+        } else {
+            return skinnyEnhancer;
+        }
     }
 
     public void setMavenBuild(Build mavenBuild) {

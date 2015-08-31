@@ -5,8 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.Map;
 
 
 public class WebModule extends GenericApplicationModule implements ApplicationModule {
@@ -15,7 +13,7 @@ public class WebModule extends GenericApplicationModule implements ApplicationMo
     public static final String DEFAULT_WEBMODULE_METADATAPATH = "WEB-INF";
     public static final String DEFAULT_WEBMODULE_LIBPATH = DEFAULT_WEBMODULE_METADATAPATH + File.separator + "lib";
 
-    WebModule(){
+    WebModule() {
     }
 
     public WebModule(TFile archivePath) {
@@ -25,15 +23,6 @@ public class WebModule extends GenericApplicationModule implements ApplicationMo
     @Override
     public String getDefaultLibraryPath() {
         return DEFAULT_WEBMODULE_LIBPATH;
-    }
-
-    /**
-     * can web applications contain other modules?
-     */
-    @Override
-    public Map<String, ApplicationModule> getModules() {
-        logger.debug("Retreiving modules from a web application module");
-        return Collections.emptyMap();
     }
 
     void init(TFile path) {

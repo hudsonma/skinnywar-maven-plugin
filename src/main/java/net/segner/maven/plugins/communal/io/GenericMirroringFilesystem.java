@@ -84,11 +84,14 @@ public class GenericMirroringFilesystem implements MirroringFilesystem {
     }
 
     @Override
-    public void copy(TFile file, String relativeDestination) throws IOException {
+    public void copy(TFile file, String relativeFolderDestination) throws IOException {
         for (TFile target : targetList()) {
             if (!target.exists()) continue;
-            TFile destination = new TFile(target, relativeDestination);
-            file.toNonArchiveFile().cp_rp(new TFile(destination, file.getName()));
+            TFile destination = new TFile(target, relativeFolderDestination);
+            TFile destinationFile = new TFile(destination, file.getName());
+            if (!file.equals(destinationFile)) {
+                file.toNonArchiveFile().cp_rp(destinationFile);
+            }
         }
     }
 

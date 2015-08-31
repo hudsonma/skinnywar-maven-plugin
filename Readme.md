@@ -1,7 +1,7 @@
 Skinny WARs with Skinny Configuration (and LTW Ready)
 =====================================================
 
-This maven (maven>3.3) plugin generates skinny WARs with skinny configuration. It will generate an ear with skinny wars using a standard layout or the load time
+This maven plugin generates skinny WARs with skinny configuration. It will generate an ear with skinny wars using a standard layout or the load time
 weaver friendly 'communal war' layout discussed in [AspectJ LTW in WebLogic 12](https://github.com/asegner/spring-ltw-weblogic). Unlike the skinny war functionality
 built into maven-ear-plugin, this plugin requires very little configuration.
 
@@ -57,8 +57,8 @@ Without setting extension to true, the plugin may still be used with the slightl
 ## Installing Plugin Locally
 --------------------------------------------------
 
-This plugin is currently in the snapshot repositories and will soon be promoted to the central repository. Before that time, the
-plugin can be downloaded by adding the snapshot repository to the project pom
+This plugin requires a minimum maven version of 3.2.x. This plugin is currently in the snapshot repositories and will soon be promoted to the central repository.
+Before that time, the plugin can be downloaded by adding the snapshot repository to the project pom
 
 ```xml
     <pluginRepositories>
@@ -82,6 +82,11 @@ the standard maven command shown below. This will install the plugin into your l
 * `communalWar`
   * Name of the war module to treat as the communal war
   * Facilitates layout discussed in [AspectJ LTW in WebLogic 12](https://github.com/asegner/spring-ltw-weblogic)
+* `generateWeblogicLtwMetadata`
+  * `true` | `false` (default: `true`)
+  * Generate metadata to facilitate load time weaving on WebLogic
+    * `<classloader-structure>` section of EAR's weblogic-application.xml, creates file if it does not exist
+  * Ignored if the communal war layout is not in use
 * `warningBreaksBuild`
   * `true` | `false` (default: `true`)
   * Force a warning to fail a build

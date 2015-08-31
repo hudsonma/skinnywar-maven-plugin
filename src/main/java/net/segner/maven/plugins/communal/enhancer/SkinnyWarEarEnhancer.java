@@ -27,6 +27,8 @@ public abstract class SkinnyWarEarEnhancer extends AbstractEnhancer<EarModule> i
     private Map<String, List<ApplicationModule>> libraryMap;
     private List<LibraryFilter> pinnedLibraries;
     private List<LibraryFilter> earLibraries;
+
+
     protected String sharedModuleName;
 
     public void setEarLibraries(List<LibraryFilter> earLibraries) {
@@ -38,7 +40,7 @@ public abstract class SkinnyWarEarEnhancer extends AbstractEnhancer<EarModule> i
     }
 
     /**
-     * move any artifacts with more than one location over to the communalWar
+     * move any artifacts with more than one location over to the shared module
      */
     protected void makeSkinnyModules() throws IOException {
         Validate.notNull(getTargetModule(), "No target module");
@@ -71,7 +73,7 @@ public abstract class SkinnyWarEarEnhancer extends AbstractEnhancer<EarModule> i
     }
 
     /**
-     * Applies the communal war packaging layout, providing an EAR layout that is LTW friendly
+     * Applies the modified packaging layout, providing an EAR layout that is LTW friendly
      */
     private void applyPackagingLayoutToJar(ApplicationModule sharedModule, String jarName, List<ApplicationModule> moduleList) {
         Validate.notNull(getTargetModule(), "No target module");
@@ -107,6 +109,9 @@ public abstract class SkinnyWarEarEnhancer extends AbstractEnhancer<EarModule> i
         }
     }
 
+    public String getSharedModuleName() {
+        return sharedModuleName;
+    }
 
     private boolean isPinnedLibrary(String jarName) {
         if (pinnedLibraries != null) {

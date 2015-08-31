@@ -2,6 +2,7 @@ package net.segner.maven.plugins.communal.enhancer;
 
 import net.segner.maven.plugins.communal.module.ApplicationModule;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
 public interface ModuleEnhancer<T extends ApplicationModule> {
