@@ -90,7 +90,7 @@ public class GenericMirroringFilesystem implements MirroringFilesystem {
             TFile destination = new TFile(target, relativeFolderDestination);
             TFile destinationFile = new TFile(destination, file.getName());
             if (!file.equals(destinationFile)) {
-                file.toNonArchiveFile().cp_rp(destinationFile);
+                file.toNonArchiveFile().cp_rp(destinationFile.isDirectory() ? destinationFile.toNonArchiveFile() : destinationFile);
             }
         }
     }
