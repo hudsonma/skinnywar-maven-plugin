@@ -56,6 +56,8 @@ public abstract class SkinnyWarEarEnhancer extends AbstractEnhancer<EarModule> i
         final ApplicationModule sharedModule = StringUtils.isNotBlank(sharedModuleName) ? earModules.get(sharedModuleName) : getTargetModule();
         Validate.notNull(sharedModule, "Shared module not found: " + sharedModuleName);
         libraryMap.forEach((jarName, warList) -> applyPackagingLayoutToJar(sharedModule, jarName, warList));
+
+        //TODO modify manifest files to match new library locations
     }
 
     private void mergeModuleLibrariesIntoMap(ApplicationModule containedModule) {

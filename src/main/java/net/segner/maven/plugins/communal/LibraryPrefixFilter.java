@@ -26,6 +26,13 @@ public class LibraryPrefixFilter implements LibraryFilter {
         this.prefix = prefix;
     }
 
+    @Override
+    public String toString() {
+        return "LibraryPrefixFilter{" +
+                "prefix='" + prefix + '\'' +
+                '}';
+    }
+
     public final boolean isMatch(String jarName) {
         Validate.notBlank(jarName);
         jarName = jarName.toLowerCase();

@@ -5,6 +5,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.model.Build;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -18,6 +20,7 @@ import java.io.IOException;
 @Named
 @Singleton
 public class ApplicationModuleProvider {
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationModuleProvider.class);
     public static final String MAVEN_EAR_PLUGIN = "org.apache.maven.plugins:maven-ear-plugin";
     public static final String MODULE_EXTENSION_EAR = ".ear";
 
@@ -62,13 +65,17 @@ public class ApplicationModuleProvider {
     @Nonnull
     public EarModule getEar() {
         EarModule module = earModuleProvider.get();
-        module.init(mavenBuild.getDirectory() + File.separator + mavenBuild.getFinalName() + MODULE_EXTENSION_EAR);
+        String expectedEarPath = mavenBuild.getDirectory() + File.separator + mavenBuild.getFinalName() + MODULE_EXTENSION_EAR;
+        logger.debug("EAR file expected at: " + expectedEarPath);
+        module.init(expectedEarPath);
 
         // find shared library path, otherwise default is used
         Xpp3Dom earPluginConfig = (Xpp3Dom) mavenBuild.getPluginsAsMap().get(MAVEN_EAR_PLUGIN).getConfiguration();
         Xpp3Dom child = earPluginConfig.getChild("defaultLibBundleDir");
         if (child != null && StringUtils.isNotBlank(child.getValue())) {
-            module.setLibraryPath(child.getValue());
+            String libraryFolder = child.getValue();
+            logger.debug("Using ear library folder from maven ear plugin definition: " + libraryFolder);
+            module.setLibraryPath(libraryFolder);
         }
 
         return module;
@@ -87,7 +94,7 @@ public class ApplicationModuleProvider {
             return wm;
         }
 
-        // TODO check if its a JAR by looking for
+        // TODO account for EJB
         //
         return null;
     }
