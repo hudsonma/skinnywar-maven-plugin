@@ -1,6 +1,7 @@
 package net.segner.maven.plugins.communal.module;
 
 import net.java.truevfs.access.TFile;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.model.Build;
@@ -29,6 +30,8 @@ public class ApplicationModuleProvider {
     private Provider<EarModule> earModuleProvider;
     @Inject
     private Provider<WebModule> webModuleProvider;
+    @Inject
+    private Provider<RarModule> rarModuleProvider;
 
     /**
      * Builds a ApplicationModule for the provided path
@@ -45,14 +48,21 @@ public class ApplicationModuleProvider {
         Validate.isTrue(path.exists(), "File path does not exist: " + name);
 
         GenericApplicationModule module = findByDefaultPathInspection(path);
-        if (module != null) {
-            Validate.isTrue(module.canRead(), "Unable to read module " + name);
-            Validate.isTrue(module.canWrite(), "Unable to write module " + name);
-            return (T) module;
-        }
+        module = (module == null) ? findByModuleExtension(path) : module;
 
         // Unable to determine type
-        throw new IllegalModuleException("Path does not represent a known application module");
+        try {
+            return checkModulePermissions(module);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalModuleException("Module specified is not a known and/or valid application module: " + name);
+        }
+    }
+
+    private <T extends GenericApplicationModule> T checkModulePermissions(GenericApplicationModule module) {
+        Validate.notNull(module);
+        Validate.isTrue(module.canRead(), "Unable to read module");
+        Validate.isTrue(module.canWrite(), "Unable to write module");
+        return (T) module;
     }
 
     @Nonnull
@@ -79,6 +89,17 @@ public class ApplicationModuleProvider {
         }
 
         return module;
+    }
+
+    @Nullable
+    private GenericApplicationModule findByModuleExtension(TFile path) {
+        if (StringUtils.equalsIgnoreCase(RarModule.EXTENSION, FilenameUtils.getExtension(path.getPath()))) {
+            RarModule rar = rarModuleProvider.get();
+            rar.init(path);
+            return rar;
+        }
+
+        return null;
     }
 
     /**
